@@ -70,24 +70,24 @@ class Fruit{
 
 Fruit* fruit = new Fruit(1,1);
 
-class Block{
+class Block{ //This class represents the individual blocks that make up the snake object in the game
     public:
         Block(float pX, float pY,float pZ, float pSize=1.0f){
             x = pX;
             y = pY;
             z = pZ;
             size = pSize;
-            r = bR; g = bG; b = bB;
+            r = bR; g = bG; b = bB; //rgb colors are set to their default (initialized at the top)
         };
         ~Block();
-        void setX(float pX){x=pX;};
+        void setX(float pX){x=pX;}; //getter and setter functions for x, y and z
         void setY(float pY){y=pY;};
         void setZ(float pZ){z=pZ;};
         float getX(){return x;};
         float getY(){return y;};
         float getZ(){return z;};
-        void setColor(float pR,float pG,float pB){r=pR;g=pG;b=pB;};
-        void draw(){
+        void setColor(float pR,float pG,float pB){r=pR;g=pG;b=pB;}; //... and color
+        void draw(){ //function to draw the block
             glPushMatrix();
             glTranslatef(-x,y,z);
             if(r > 1 || g > 1 || b > 1){
@@ -95,45 +95,7 @@ class Block{
             }else{
                 glColor3f(r,g,b);
             }
-            //glutSolidCube(size);
-            //glBindTexture(GL_TEXTURE_2D,texture[1]);
-            glBegin(GL_QUADS);
-                glNormal3f(0,0,-1);
-                glTexCoord2f(1,1); glVertex3f(0.5,0.5,-0.5); //front face
-                glTexCoord2f(0,1); glVertex3f(-0.5,0.5,-0.5);
-                glTexCoord2f(0,0); glVertex3f(-0.5,-0.5,-0.5);
-                glTexCoord2f(1,0); glVertex3f(0.5,-0.5,-0.5);
-                glNormal3f(0,0,1);
-                glTexCoord2f(0,1); glVertex3f(0.5,0.5,0.5); //back face
-                glTexCoord2f(0,1); glVertex3f(-0.5,0.5,0.5);
-                glTexCoord2f(0,0); glVertex3f(-0.5,-0.5,0.5);
-                glTexCoord2f(1,0); glVertex3f(0.5,-0.5,0.5);
-                glNormal3f(0,-1,0);
-                glTexCoord2f(0,1); glVertex3f(-0.5,-0.5,-0.5); //bottom face
-                glTexCoord2f(1,1); glVertex3f(0.5,-0.5,-0.5);
-                glTexCoord2f(1,0); glVertex3f(0.5,-0.5,0.5);
-                glTexCoord2f(0,0); glVertex3f(-0.5,-0.5,0.5);
-                glNormal3f(0,1,0);
-                glTexCoord2f(0,0); glVertex3f(-0.5,0.5,-0.5); //top face
-                glTexCoord2f(1,0); glVertex3f(0.5,0.5,-0.5);
-                glTexCoord2f(1,1); glVertex3f(0.5,0.5,0.5);
-                glTexCoord2f(0,1); glVertex3f(-0.5,0.5,0.5);
-                glNormal3f(1,0,0);
-                glTexCoord2f(1,0); glVertex3f(-0.5,0.5,-0.5); //right face
-                glTexCoord2f(0,0); glVertex3f(-0.5,0.5,0.5);
-                glTexCoord2f(0,1); glVertex3f(-0.5,-0.5,0.5);
-                glTexCoord2f(1,1); glVertex3f(-0.5,-0.5,-0.5);
-                glNormal3f(-1,0,0);
-                glTexCoord2f(1,0); glVertex3f(0.5,0.5,-0.5); //left face
-                glTexCoord2f(0,0); glVertex3f(0.5,0.5,0.5);
-                glTexCoord2f(0,1); glVertex3f(0.5,-0.5,0.5);
-                glTexCoord2f(1,1); glVertex3f(0.5,-0.5,-0.5);
-            glEnd();
-            /*glColor3f(1,0,0);
-            glBegin(GL_LINES);
-                glVertex3f(0,0.6,-0.5);
-                glVertex3f(0,0.6,0.5);
-            glEnd();*/
+            glCallList(cube);
             glPopMatrix();
         };
         
@@ -141,14 +103,15 @@ class Block{
         float x,y,z,size,r,g,b;
 };
 
-class Snake{
+class Snake{ //contains the logic for the snake movement and collision
     public:
-        std::vector<Block*> blocks;
+        std::vector<Block*> blocks; //snake is just an array of blocks
+
         Snake(float startX, float startZ, int blockCount){
             for(float i = 0; i < blockCount; i++){
                 Block* temp = new Block(startX+i,0,startZ);
                 if(i == 0)
-                    temp->setColor(0,1,0);
+                    temp->setColor(0,1,0); //snake head is set to green color
                 blocks.push_back(temp);
             }
             isUpdated = false;
@@ -156,14 +119,14 @@ class Snake{
             score = 0;
         }; 
         ~Snake();
-        void draw(){
+        void draw(){ //loops through block array and calls their draw functions
             for(int i = 0; i <= blocks.size()-1; i++){
                 Block* temp = blocks.at(i);
                 temp->draw();
             }
         };
 
-        void move(Direction direction){
+        void move(Direction direction){ //all snake movement handled in this and pushSnake() function below
             Block* snakeHead = blocks.at(0);
             if(direction == D_LEFT && currentDirection != D_RIGHT){
                 pushSnake();
@@ -188,7 +151,7 @@ class Snake{
             }
         };
 
-        void pushSnake(){
+        void pushSnake(){ //doesn't change snake head position but advances all other blocks
             for(int i = blocks.size()-1; i >= 1; i--){
                 Block* temp = blocks.at(i);
                 Block* prevBlock = blocks.at(i-1);
@@ -197,22 +160,22 @@ class Snake{
             }
         };
 
-        void update(){
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if(!isUpdated)
+        void update(){ //update function called at every frame
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); //improper fps-capping, will update later
+            if(!isUpdated) //if movement wasn't already handled on keypress event, then handle it now
                 move(currentDirection);
             isUpdated = false;
             collisionDetection();
         };
 
-        void collisionDetection(){
+        void collisionDetection(){ //checks if snake head hit fruit or it's own body
             float x = blocks.at(0)->getX();
             float z = blocks.at(0)->getZ();
-            if(fruit->getX() == x && fruit->getZ() == z){
-                score++;
+            if(fruit->getX() == x && fruit->getZ() == z){ //check for fruit collision
+                score++; //increment score
                 printf("Score = %i\n",score);
                 bool repeat = false;
-                do{
+                do{ //makes sure that fruit doesn't spawn underneath body
                     repeat = false;
                     fruit->setX(rand()%11-5);
                     fruit->setZ(rand()%11-5);
@@ -222,18 +185,18 @@ class Snake{
                         if(fruit->getX()==x && fruit->getZ()==z)
                             repeat = true;
                     }
-                }while(repeat);
+                }while(repeat); //(bug) will crash after snake takes up whole grid
                 addBlock();
             }
-            for(int i = 1; i<= blocks.size()-1; i++){
+            for(int i = 1; i<= blocks.size()-1; i++){ //check for collision with own body
                 if(blocks.at(i)->getX() == blocks.at(0)->getX() && blocks.at(i)->getZ() == blocks.at(0)->getZ()){
-                    printf("collision\n");
-                    blocks.at(i)->setColor(1,0,0);
+                    printf("collision\n"); //so far no game over screen so this is the only thing that happens...
+                    blocks.at(i)->setColor(1,0,0); //... and collided block turns red.
                 }
             }
         };
 
-        void addBlock(){
+        void addBlock(){ //adds a new block to the snake
             Block* newBlock = new Block(-100,0, -100);
             blocks.push_back(newBlock);
         };
@@ -248,7 +211,7 @@ class Snake{
 
 Snake* snake = new Snake(0,0,3);
 
-void buildDLs(){ //Build display lists
+void buildDLs(){ //Build display lists, right now only compiles a cube
     cube = glGenLists(1);
     glNewList(cube,GL_COMPILE);
         glBegin(GL_QUADS);
@@ -286,7 +249,7 @@ void buildDLs(){ //Build display lists
     glEndList();
 }
 
-void drawGrid(void){
+void drawGrid(void){ //hardcoded values for grid...
     glColor3ub(24,221,0);
     glLineWidth(2);
     glBegin(GL_LINES);
@@ -487,7 +450,7 @@ void drawGrid(void){
     glPopMatrix();
 }
 
-void drawSnakeLines(){
+void drawSnakeLines(){ //hardcoded values for fancy snake lines
     Block* block = snake->blocks.at(0);
     Block* blockAfter = NULL;
     Block* blockBefore = NULL;
@@ -795,9 +758,9 @@ void drawSnakeLines(){
     glLineWidth(1);
 }
 
-void draw(void){
+void draw(void){ //GLUT doesn't let me change it's main loop so the drawing loop is also where the game update logic goes too
 
-    snake->update();
+    snake->update(); //update snake position
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(
@@ -812,7 +775,7 @@ void draw(void){
     glutSwapBuffers();
 }
 
-void resize(int w, int h){
+void resize(int w, int h){ //function called on resize of window
     if(h == 0)
         h = 1;
     float ratio = w*1.0f/h;
@@ -823,15 +786,15 @@ void resize(int w, int h){
     glMatrixMode(GL_MODELVIEW);
 }
 
-void keyEvents(unsigned char key, int x, int y){
+void keyEvents(unsigned char key, int x, int y){ //function called when normal keys are pressed
     switch(key){
-        case 27:
+        case 27: //escape key
             exit(0);
             break;
     }
 }
 
-void specialKeys(int key, int x, int y){
+void specialKeys(int key, int x, int y){ //function called when special keys are pressed
     switch(key){
         case GLUT_KEY_F1:
             exit(0);
@@ -851,7 +814,7 @@ void specialKeys(int key, int x, int y){
     }
 }
 
-void loadGLTexture(std::string filePath, unsigned int textureNum){
+void loadGLTexture(std::string filePath, unsigned int textureNum){ //function loads textures
     texture[textureNum] = SOIL_load_OGL_texture(
     filePath.c_str(),
     SOIL_LOAD_AUTO,
@@ -878,13 +841,13 @@ void initGL(void){
     glEnable(GL_TEXTURE_2D);
 }
 
-void mouseEvents(int button, int dir, int x, int y){
+void mouseEvents(int button, int dir, int x, int y){ //function called on mouse events
     switch(button){
-        case 3:
+        case 3: //scroll up and zoom in
             printf("zoom in\n");
             yCamPos -= 0.5;
             break;
-        case 4:
+        case 4: //scroll down and zoom out
             printf("zoom out\n");
             yCamPos += 0.5;
             break;
