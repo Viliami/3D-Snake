@@ -3,4 +3,4 @@
 
 Screenshot:
 
-![alt tag](https://cloud.githubusercontent.com/assets/13442473/10267250/b95aedf4-6ae9-11e5-9c17-1f6e69257669.png)
+![alt tag](https://cloud.githubusercontent.com/assets/13442473/10602933/cf133b66-7777-11e5-9d20-b1585541d3a9.png)
